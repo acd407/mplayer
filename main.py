@@ -1,21 +1,23 @@
 #!/bin/python
 import sys
 import time
-import mido
+import fluidsynth
 
 # pyright: reportAttributeAccessIssue=false
 
 
 class Output:
-
     def __init__(self) -> None:
-        self.port = mido.open_output("TiMidity port 0")
+        self.fs = fluidsynth.Synth()
+        self.fs.start(midi_driver="alsa_seq")
+        self.sfid = self.fs.sfload("/usr/share/soundfonts/default.sf2")
+        self.fs.program_select(0, self.sfid, 0, 0)
 
     def __del__(self) -> None:
-        self.port.close()
+        self.fs.delete()
 
     def send(self, tone) -> None:
-        self.port.send(mido.Message("note_on", note=tone, velocity=127))
+        self.fs.noteon(0, tone, 127)
 
 
 class Note:
@@ -118,8 +120,7 @@ def main():
                         pass
                     case -3, timbre:
                         print("T ", f"{timbre:d}")
-                        output.port.send(
-                            mido.Message("program_change", program=timbre))
+                        output.fs.program_select(0, output.sfid, 0, timbre)
 
 
 if __name__ == "__main__":
