@@ -3,11 +3,16 @@ import sys
 import time
 import mido
 
+# pyright: reportAttributeAccessIssue=false
+
 
 class Output:
 
     def __init__(self) -> None:
-        self.port = mido.open_output("FluidSynth GM")
+        self.port = mido.open_output("TiMidity port 0")
+
+    def __del__(self) -> None:
+        self.port.close()
 
     def send(self, tone) -> None:
         self.port.send(mido.Message("note_on", note=tone, velocity=127))
