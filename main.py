@@ -52,14 +52,14 @@ def parse(s: str) -> tuple[int, float]:
         delay, offset = 6e4 / Note.SPEED, Note.OFFSET
         tone = 1
         # 前缀
-        if s[0] == "#":
-            offset += 1
-            s = s[1:]
         while s[0] == "+":
             offset += 12
             s = s[1:]
         while s[0] == "-":
             offset -= 12
+            s = s[1:]
+        if s[0] == "#":
+            offset += 1
             s = s[1:]
         # 音符
         if s[0] == "0":
