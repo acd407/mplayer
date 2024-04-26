@@ -2,6 +2,7 @@
 import sys
 import time
 import fluidsynth
+from blessed import Terminal
 import signal
 
 # pyright: reportAttributeAccessIssue=false
@@ -18,6 +19,9 @@ class Output:
         self.fs.delete()
 
     def send(self, tone) -> None:
+        if hasattr(self, "lastnote"):
+            self.fs.noteoff(0, self.lastnote)
+        self.lastnote = tone
         self.fs.noteon(0, tone, 127)
 
 
@@ -95,8 +99,8 @@ def parse(s: str) -> tuple[int, float]:
         return tone, delay
 
 
-def main():
-    with open(sys.argv[1]) as file:
+def play(filename: str):
+    with open(filename) as file:
         output = Output()
         for line in file:
             for s in line.split(","):
@@ -124,6 +128,65 @@ def main():
                         output.fs.program_select(0, output.sfid, 0, timbre)
 
 
+def piano():
+    output = Output()
+    term = Terminal()
+
+    kt = "zZxXcvVbBnNm\
+aAsSdfFgGhHj\
+qQwWerRtTyYu\
+1!2@34$5%6^7"
+
+    def format_tone(tone):
+        tt = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+        dt = ["1", "#1", "2", "#2", "3", "4", "#4", "5", "#5", "6", "#6", "7"]
+        tone -= 60
+        if tone < 0:
+            s = "-" * (-tone // 12) + tt[tone % 12]
+            t = "-" * (-tone // 12) + dt[tone % 12]
+        else:
+            s = "+" * (tone // 12) + tt[tone % 12]
+            t = "-" * (-tone // 12) + dt[tone % 12]
+        return format(f"{s:<8}{t:<8}{tone+60}")
+
+    tone = 60 + Note.OFFSET
+
+    with term.cbreak():
+        while True:
+            val: str = term.inkey(timeout=3)
+            match val:
+                case "":
+                    continue
+                case i if i in kt:
+                    i = kt.index(i)
+                    output.send(tone - 12 + i)
+                    print(format_tone(tone - 12 + i))
+                case ">":
+                    tone += 12
+                    print(f"tone:  {format_tone(tone)}")
+                case "<":
+                    tone -= 12
+                    print(f"tone:  {format_tone(tone)}")
+                case "]":
+                    tone += 1
+                    print(f"tone:  {format_tone(tone)}")
+                case "[":
+                    tone -= 1
+                    print(f"tone:  {format_tone(tone)}")
+
+
+def leave(signum: int, frame):
+    print("pressed Ctrl-C, closing")
+    quit()
+
+
+def main():
     signal.signal(signal.SIGINT, leave)
+    if len(sys.argv) > 1:
+        play(sys.argv[1])
+    else:
+        piano()
+
+
 if __name__ == "__main__":
     main()
