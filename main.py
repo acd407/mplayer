@@ -1,7 +1,8 @@
-#!/bin/python
+#!./sh-c 2>/dev/null /bin/python
 import sys
 import time
 import fluidsynth
+import signal
 
 # pyright: reportAttributeAccessIssue=false
 
@@ -123,5 +124,6 @@ def main():
                         output.fs.program_select(0, output.sfid, 0, timbre)
 
 
+    signal.signal(signal.SIGINT, leave)
 if __name__ == "__main__":
     main()
