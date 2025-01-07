@@ -2,7 +2,7 @@ for file in demo/*; do
 	echo -e "\npython ./main.py $file"
 	cat $file
 	sleep 1
-	./main.py $file
+	python ./main.py $file 2>/dev/null
 	sleep 1
 	echo ''
 done

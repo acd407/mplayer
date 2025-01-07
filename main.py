@@ -1,4 +1,4 @@
-#!./sh-c 2>/dev/null /bin/python
+#!/bin/python
 import sys
 import time
 import fluidsynth
