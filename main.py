@@ -1,4 +1,4 @@
-#!/bin/python
+#!/bin/env python
 import sys
 import time
 import fluidsynth
@@ -142,12 +142,12 @@ qQwWerRtTyYu\
         dt = ["1", "#1", "2", "#2", "3", "4", "#4", "5", "#5", "6", "#6", "7"]
         tone -= 60
         if tone < 0:
-            s = "-" * (-tone // 12) + tt[tone % 12]
-            t = "-" * (-tone // 12) + dt[tone % 12]
+            s = "-" * (-tone // 12 + 1) + tt[tone % 12]
+            t = "-" * (-tone // 12 + 1) + dt[tone % 12]
         else:
             s = "+" * (tone // 12) + tt[tone % 12]
-            t = "-" * (-tone // 12) + dt[tone % 12]
-        return format(f"{s:<8}{t:<8}{tone+60}")
+            t = "+" * (tone // 12) + dt[tone % 12]
+        return format(f"{s:<8}{t:<8}{tone + 60}")
 
     tone = 60 + Note.OFFSET
 
@@ -156,6 +156,9 @@ qQwWerRtTyYu\
             val: str = term.inkey(timeout=3)
             match val:
                 case "":
+                    continue
+                case " ":
+                    print("")
                     continue
                 case i if i in kt:
                     i = kt.index(i)
